@@ -1,62 +1,85 @@
-// import { ZodError } from "zod";
-import { UserBusiness } from "../business/UserBusiness";
 import { Request, Response } from "express";
-import { BaseError } from "../errors/BaseError";
-import { SignupSchema } from "../dtos/user/signup.dto";
-import { LoginSchema } from "../dtos/user/login.dto";
+import { UserBusiness } from "../business/UserBusiness";
+import { UserDataBase } from "../database/UserDatabase";
+import { LoginInputDTO, LoginOutputDTO, SignupInputDTO, SignupOutputDTO } from "../dto/userDTO";
+import { BaseError } from "../errors/BaseErrors";
+import { TUser } from "../models/types";
+import { User } from "../models/User";
+
+
 
 export class UserController {
-  constructor(
-    private userBusiness: UserBusiness
-  ) {}
+    constructor(
+      private userBusiness: UserBusiness
+    ){}
+    public createUsers = async (req: Request, res: Response) => {
+    try{
+        const input : SignupInputDTO = {
+            name: req.body.name,
+            email: req.body.email,
+            password: req.body.password, 
+        }
 
-  public signup = async (req: Request, res: Response) => {
-    try {
-      const input = SignupSchema.parse({
-        name: req.body.name,
-        email: req.body.email,
-        password: req.body.password
-      })
-
-      const output = await this.userBusiness.signup(input)
-
-      res.status(201).send(output)
-      
-    } catch (error) {
-      console.log(error)
-
-      if (error instanceof Error) {
-        res.status(400).send(error)
-      } else if (error instanceof BaseError) {
-        res.status(error.statusCode).send(error.message)
-      } else {
-        res.status(500).send("Erro inesperado")
-      }
+        const output : SignupOutputDTO = await this.userBusiness.createUsers(input)
+     
+            res.status(201).send(output)
+    
+            }catch (error: any) {
+            console.log(error)
+    
+            if (error instanceof BaseError) {
+                res.status(error.statusCode)
+                .send(error.message)
+            }else{
+                res.send("Erro inesperado")
+            }
+        }
     }
-  }
 
-  public login = async (req: Request, res: Response) => {
-    try {
+    public createUsersLogin = async (req: Request, res: Response) => {
 
-      const input = LoginSchema.parse({
-        email: req.body.email,
-        password: req.body.password
-      })
-
-      const output = await this.userBusiness.login(input)
-
-      res.status(200).send(output)
-      
-    } catch (error) {
-      console.log(error)
-
-      if (error instanceof Error) {
-        res.status(400).send(error)
-      } else if (error instanceof BaseError) {
-        res.status(error.statusCode).send(error.message)
-      } else {
-        res.status(500).send("Erro inesperado")
-      }
+        try {
+    
+            const input : LoginInputDTO = {     
+                email: req.body.email,
+                password: req.body.password,   
+            }
+    
+            
+            const output : LoginOutputDTO = await this.userBusiness.createUsersLogin(input)
+            
+            res.status(200).send(output)
+    
+            }catch (error: any) {
+            console.log(error)
+    
+            if (error instanceof BaseError) {
+                res.status(error.statusCode)
+                .send(error.message)
+            }else{
+                res.send("Erro inesperado")
+            }
+        }
     }
-  }
+
+    public getUsers = async (req: Request, res: Response) => {
+        try {
+    
+            
+            const output = await this.userBusiness.getUsers()
+    
+            res.status(200).send(output)
+    
+        }
+        catch (error: any) {
+            console.log(error)
+    
+            if (error instanceof BaseError) {
+                res.status(error.statusCode)
+                .send(error.message)
+            }else{
+                res.send("Erro inesperado")
+            }
+        }
+    }
 }

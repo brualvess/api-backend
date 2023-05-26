@@ -1,26 +1,51 @@
-import { UserDB } from "../models/User";
-import { BaseDatabase } from "./BaseDatabase";
+import { TUser } from "../models/types";
+import { BaseDatabase } from "./BaseDataBase";
 
-export class UserDatabase extends BaseDatabase {
-  public static TABLE_USERS = "users"
 
-  public insertUser = async (
-    userDB: UserDB
-  ): Promise<void> => {
-    await BaseDatabase
-      .connection(UserDatabase.TABLE_USERS)
-      .insert(userDB)
-  }
 
-  public findUserByEmail = async (
-    email: string
-  ): Promise<UserDB | undefined> => {
-    // const [userDB]: Array<UserDB | undefined> = ...
-    const [userDB] = await BaseDatabase
-      .connection(UserDatabase.TABLE_USERS)
-      .select()
-      .where({ email })
+export class UserDataBase extends BaseDatabase{
 
-    return userDB as UserDB | undefined
-  }
+    public static TABLE_USERS = "users"
+
+    public async findGetUsers(){
+        const result: TUser[] = await BaseDatabase
+        .conection(UserDataBase.TABLE_USERS)
+
+        return result
+    }
+
+
+
+    public async findPostUser(id: string){
+        const [userExists]: TUser[] | undefined[] = await BaseDatabase
+        .conection(UserDataBase.TABLE_USERS)
+        .where({ id });
+
+        return userExists
+    }
+
+
+    public async findPostUserEmail(email: string){
+        const [emailExists]: TUser[] | undefined[] = await BaseDatabase
+        .conection(UserDataBase.TABLE_USERS)
+        .where({ email });
+
+        return emailExists
+    }
+
+
+    public async insertPostUser(newUser: TUser){
+        await BaseDatabase
+        .conection(UserDataBase.TABLE_USERS)
+        .insert(newUser)
+    }
+
+
+    public async findPostUserPassword(password: string){
+        const [passwordExists]: TUser[] | undefined[] = await BaseDatabase
+        .conection(UserDataBase.TABLE_USERS)
+        .where({ password: password });
+
+        return passwordExists
+    }
 }
